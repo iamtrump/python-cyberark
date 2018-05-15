@@ -14,6 +14,6 @@ ca = cyberark.CyberArk("https://cyberark.local", "my_login", "password")
 # List safes:
 print(ca.list_safes())
 # Print account details
-print(ca.get_account_details("Safe", "Account_name")
+print(ca.get_account_details("Safe", "Account_name"))
 ca.logoff()
 ```
