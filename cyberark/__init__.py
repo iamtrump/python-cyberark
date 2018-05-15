@@ -15,7 +15,7 @@ class CyberArk:
    }"
    response = requests.request("POST", url, data=data, headers=headers)
    self.baseurl = baseurl
-   self._token = reduce(lambda x, y: x[y], ["CyberArkLogonResult"], json.loads(response.text))
+   self._token = json.loads(response.text)["CyberArkLogonResult"]
    self._headers = {
      "Authorization": self._token,
      "Content-Type": "application/json"
