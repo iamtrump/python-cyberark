@@ -1,5 +1,5 @@
 # Python CyberArk module
-The module implements some CyberArk API functions.
+The module implements few CyberArk API functions.
 ## Requirements
 * CyberArk 9.3+
 ## Installation
