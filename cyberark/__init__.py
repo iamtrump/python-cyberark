@@ -2,6 +2,7 @@
 
 import requests
 import json
+import random
 
 class CyberArk:
   def _request_error_handle(self, r):
@@ -10,14 +11,16 @@ class CyberArk:
     except Exception as e:
       raise e
 
-  def __init__(self, baseurl, username, password):
+  def __init__(self, baseurl, username, password, connection_number=None):
     url = baseurl+"/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logon"
     headers = {"Content-Type": "application/json"}
+    if connection_number is None or connection_number not in range(1,101):
+      connection_number = random.randrange(1,101)
     data = {
       "username": username,
       "password": password,
       "useRadiusAuthentication": "false",
-      "connectionNumber": "1"
+      "connectionNumber": connection_number
     }
     response = requests.request("POST", url, data=json.dumps(data), headers=headers)
     self._request_error_handle(response)
