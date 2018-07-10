@@ -2,6 +2,7 @@
 
 import requests
 import json
+import random
 
 class CyberArk:
   def _request_error_handle(self, r):
@@ -10,16 +11,20 @@ class CyberArk:
     except Exception as e:
       raise e
 
-  def __init__(self, baseurl, username, password):
+  def __init__(self, baseurl, username, password, connection_number=None):
     url = baseurl+"/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logon"
     headers = {"Content-Type": "application/json"}
+    if connection_number is None or connection_number not in range(1,101):
+      connection_number = random.randrange(1,101)
     data = {
       "username": username,
       "password": password,
       "useRadiusAuthentication": "false",
-      "connectionNumber": "1"
+      "connectionNumber": connection_number
     }
-    response = requests.request("POST", url, data=json.dumps(data), headers=headers)
+# Ping CyberArk:
+    response = requests.get(baseurl)
+    response = requests.post(url, data=json.dumps(data), headers=headers)
     self._request_error_handle(response)
     self.baseurl = baseurl
     self._token = response.json()["CyberArkLogonResult"]
@@ -30,19 +35,20 @@ class CyberArk:
 
   def logoff(self):
     url = self.baseurl+"/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logoff"
-    response = requests.request("POST", url, headers=self._headers)
+    response = requests.post(url, headers=self._headers)
     self._request_error_handle(response)
     return response.json()
 
   def list_safes(self):
     url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Safes"
-    response = requests.request("GET", url, headers=self._headers)
+    #response = requests.request("GET", url, headers=self._headers)
+    response = requests.get(url, headers=self._headers)
     self._request_error_handle(response)
     return response.json()
 
   def get_safe_details(self, safe):
     url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Safes/"+safe
-    response = requests.request("GET", url, headers=self._headers)
+    response = requests.get(url, headers=self._headers)
     self._request_error_handle(response)
     return response.json()
 
@@ -52,13 +58,13 @@ class CyberArk:
       "Keywords": criteria,
       "Safe": safe
     }
-    response = requests.request("GET", url, headers=self._headers, params=query)
+    response = requests.get(url, headers=self._headers, params=query)
     self._request_error_handle(response)
     return response.json()
 
   def delete_account(self, account_id):
     url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Accounts/"+account_id
-    response = requests.request("DELETE", url, headers=self._headers)
+    response = requests.delete(url, headers=self._headers)
     self._request_error_handle(response)
     return response.text
 
@@ -83,6 +89,6 @@ class CyberArk:
     for k, v in properties.items():
       prop = {"Key": k, "Value": v}
       data["account"]["properties"].append(prop)
-    response = requests.request("POST", url, data=json.dumps(data), headers=self._headers)
+    response = requests.post(url, data=json.dumps(data), headers=self._headers)
     self._request_error_handle(response)
     return response.text
