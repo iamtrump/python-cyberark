@@ -16,8 +16,6 @@ class CyberArk:
       "useRadiusAuthentication": "false",
       "connectionNumber": connection_number
     }
-# Ping CyberArk:
-    response = requests.get(baseurl)
     response = requests.post(url, data=json.dumps(data), headers=headers)
     response.raise_for_status()
     self.baseurl = baseurl
