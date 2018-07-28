@@ -5,12 +5,6 @@ import json
 import random
 
 class CyberArk:
-  def _request_error_handle(self, r):
-    try:
-      r.raise_for_status()
-    except Exception as e:
-      raise e
-
   def __init__(self, baseurl, username, password, connection_number=None):
     url = baseurl+"/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logon"
     headers = {"Content-Type": "application/json"}
@@ -25,7 +19,7 @@ class CyberArk:
 # Ping CyberArk:
     response = requests.get(baseurl)
     response = requests.post(url, data=json.dumps(data), headers=headers)
-    self._request_error_handle(response)
+    response.raise_for_status()
     self.baseurl = baseurl
     self._token = response.json()["CyberArkLogonResult"]
     self._headers = {
@@ -36,20 +30,19 @@ class CyberArk:
   def logoff(self):
     url = self.baseurl+"/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logoff"
     response = requests.post(url, headers=self._headers)
-    self._request_error_handle(response)
+    response.raise_for_status()
     return response.json()
 
   def list_safes(self):
     url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Safes"
-    #response = requests.request("GET", url, headers=self._headers)
     response = requests.get(url, headers=self._headers)
-    self._request_error_handle(response)
+    response.raise_for_status()
     return response.json()
 
   def get_safe_details(self, safe):
     url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Safes/"+safe
     response = requests.get(url, headers=self._headers)
-    self._request_error_handle(response)
+    response.raise_for_status()
     return response.json()
 
   def get_account_details(self, safe, criteria):
@@ -59,13 +52,13 @@ class CyberArk:
       "Safe": safe
     }
     response = requests.get(url, headers=self._headers, params=query)
-    self._request_error_handle(response)
+    response.raise_for_status()
     return response.json()
 
   def delete_account(self, account_id):
     url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Accounts/"+account_id
     response = requests.delete(url, headers=self._headers)
-    self._request_error_handle(response)
+    response.raise_for_status()
     return response.text
 
   def add_account(self, safe, platform_id, address, account_name, username, password, disable_auto_mgmt, disable_auto_mgmt_reason, group_name, group_platform_id, properties):
@@ -90,5 +83,5 @@ class CyberArk:
       prop = {"Key": k, "Value": v}
       data["account"]["properties"].append(prop)
     response = requests.post(url, data=json.dumps(data), headers=self._headers)
-    self._request_error_handle(response)
+    response.raise_for_status()
     return response.text
