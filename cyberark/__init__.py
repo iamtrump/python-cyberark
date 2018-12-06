@@ -83,3 +83,9 @@ class CyberArk:
     response = requests.post(url, data=json.dumps(data), headers=self._headers)
     response.raise_for_status()
     return response.text
+
+  def get_account_value(self, account_id):
+    url = self.baseurl+"/PasswordVault/WebServices/PIMServices.svc/Accounts/"+account_id+"/Credentials"
+    response = requests.get(url, headers=self._headers)
+    response.raise_for_status()
+    return response.text
